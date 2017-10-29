@@ -209,7 +209,7 @@ static void
 unixterm_puts(const char *str)
 {
     // DBG("puts \"%s\"", str);
-    {const char *s=str; while (*s) DBGC(*s++);}
+    {const char *s=str; while (*s++) DBGC(s[-1]);}
     fputs(str, stdout);
 }
 
