@@ -25,7 +25,7 @@
 /*=======================================================================
  *	Minimal (n)curses for Atto
  *=======================================================================*/
-#include "ncurses.h"
+#include "curses.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

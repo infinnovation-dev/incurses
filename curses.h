@@ -27,8 +27,8 @@
  *	Only enough to be able to run Atto, a small Emacs-like editor.
  *	Don't expect miracles.
  *=======================================================================*/
-#ifndef INC_ncurses_h
-#define INC_ncurses_h
+#ifndef INC_curses_h
+#define INC_curses_h
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -136,4 +136,4 @@ extern char *unctrl(chtype);
 #ifdef __cplusplus
 }
 #endif
-#endif /* INC_ncurses_h */
+#endif /* INC_curses_h */
