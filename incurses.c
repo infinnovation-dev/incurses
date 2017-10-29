@@ -111,6 +111,55 @@ DBGC(uint8_t c)
 #define DBGC(c)
 #endif
 
+#if defined(__MBED__)
+/*-----------------------------------------------------------------------
+ *      mbed serial driver
+ *
+ *	Use the 'stdio_uart' global variable by which mbed connects each
+ *	target's serial implementation with the C library stdio.
+ *	See mbed-os/platform/mbed_retarget.cpp and e.g.
+ *	mbed-os/targets/TARGET_NXP/TARGET_LPC176X/serial_api.c
+ *	N.B. This is not an advertised part of the API so may break
+ *	in a future release of mbed.
+ *-----------------------------------------------------------------------*/
+#undef ERR                              /* Conflict with MK64F12 DMA register */
+#include "serial_api.h"
+extern int stdio_uart_inited;
+extern serial_t stdio_uart;
+
+static int
+_mbedserial_getc(int timeout_ms)
+{
+    /* FIXME honour timeout */
+    return serial_getc(&stdio_uart);
+}
+
+
+static void
+_mbedserial_putc(int c)
+{
+    DBGC(c);
+    serial_putc(&stdio_uart, c);
+}
+
+static void
+_mbedserial_puts(const char *str)
+{
+    int c;
+    while ((c = *str++) != 0) {
+        _mbedserial_putc(c);
+    }
+}
+
+#define DRV_RAW(bf)
+#define DRV_ECHO(bf)
+#define DRV_GETC _mbedserial_getc
+#define DRV_FLUSHIN()
+#define DRV_PUTC _mbedserial_putc
+#define DRV_PUTS _mbedserial_puts
+#define DRV_FLUSH()
+
+#else
 /*-----------------------------------------------------------------------
  *	Unix terminal driver
  *-----------------------------------------------------------------------*/
@@ -172,6 +221,8 @@ unixterm_puts(const char *str)
 #define DRV_PUTS unixterm_puts
 #define DRV_FLUSH() fflush(stdout)
 
+#endif
+
 /*-----------------------------------------------------------------------
  *	initscr
  *-----------------------------------------------------------------------*/
@@ -190,6 +241,7 @@ int
 endwin(void)
 {
     move(LINES-1, 0);
+    attrset(A_NORMAL);
     clrtoeol();
     curs_set(true);
     DRV_PUTS(ESC"[4l");                 /* set replace mode */
@@ -214,8 +266,8 @@ start_color(void)
 int
 init_pair(unsigned pair, uint8_t fg, uint8_t bg)
 {
-    if (pair == 0 || pair >= COLOR_PAIRS) return ERR;
-    if (fg >= 8 || bg >= 8) return ERR;
+    if (pair == 0 || pair >= COLOR_PAIRS) return INCURSES_ERR;
+    if (fg >= 8 || bg >= 8) return INCURSES_ERR;
     DBG("init_pair %u %u %u", pair, fg, bg);
     incurses_pairs[pair] = INCURSES_FG(fg) | INCURSES_BG(bg);
     return OK;

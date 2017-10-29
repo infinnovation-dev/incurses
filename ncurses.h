@@ -43,12 +43,16 @@ typedef uint8_t chtype;
 typedef uint16_t attr_t;
 
 /* Constants */
+enum {
+    INCURSES_OK = 0,
+    INCURSES_ERR = 1
+};
 #ifndef OK
-#define OK 0
+#define OK INCURSES_OK
 #endif
 
 #ifndef ERR
-#define ERR 1
+#define ERR INCURSES_ERR
 #endif
 
 /* Atto expects these */
